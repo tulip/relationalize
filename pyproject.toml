@@ -1,0 +1,25 @@
+[project]
+name = "relationalize"
+version = "0.1.2"
+authors = [
+  { name="Henry Jones", email="henry.jones@tulip.co" },
+]
+description = "A utility for converting/transporting arbitrary JSON data into a relational database"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+keywords = [
+  "tulip",
+  "relationalize",
+  "json",
+  "relational",
+  "array"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

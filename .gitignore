@@ -1,0 +1,4 @@
+__pycache__
+.venv
+dist
+relationalize.egg-info
