@@ -23,6 +23,7 @@ pip install relationize
 
 ## Example
 Example relationize usages are placed in the examples/ folder. 
+To run them cd into the examples folder. 
 ##### Single Threaded (Local FS) Example.
 
 ```python
