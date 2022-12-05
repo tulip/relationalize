@@ -9,7 +9,7 @@ The relationalize class constructor takes in a function that produces a TextIO o
 
 As the relationalize function walks the tree of the JSON document it is first flattening any sub-structs and second converting any arrays.
 
-Relationalize allow schemas to be serialized/deserialize from json. Relationalize can handle nested JSONs, however the schema class can not handle nested JSON, and needs flatted JSON.
+Relationalize allow schemas to be serialized/deserialize from json. Relationalize can handle nested JSONs, however the schema class can not handle nested JSON, and only works on flattened JSON.
  
 The function `_write_to_output` creates a output in the users choice of output stream which can then be used to write the data to a database. 
 
