@@ -1,4 +1,4 @@
-# Relatinize
+# Relationize
 transforming arbitrary collections of JSON objects, into a relational-friendly format. Draws inspiration from https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-crawler-pyspark-transforms-Relationalize.html
 Relationize is a Python library for transforming arbitrary collections of JSON objects, into a relational-friendly format. It draws inspiration from https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-crawler-pyspark-transforms-Relationalize.html
 ## Why Relationize
@@ -10,7 +10,11 @@ The relationalize class constructor takes in a function that produces a TextIO o
 
 As the relationalize function walks the tree of the JSON document it is first flattening any sub-structs and second converting any arrays.
 
+Relationalize allow schemas to beserialized/deserialize from json. Relationalize only works with flattened arrays, and can be merged.
+ 
+The function `_write_to_output` creates a output in the users choice of output stream which can then be used to write the data to a database. 
 
+The function `read_object` reads the list of schemas and merges them into the current schema. 
 
 ## Installation
 

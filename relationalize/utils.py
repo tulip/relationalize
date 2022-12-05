@@ -4,7 +4,7 @@ from io import StringIO
 
 def create_local_file(output_dir: str = ""):
     """
-    A `create_ouput` compatible Callable for utilizing the local File System with relationalize.
+    A `create_output` compatible Callable for utilizing the local File System with relationalize.
     """
 
     def open_local_file(identifier: str):
