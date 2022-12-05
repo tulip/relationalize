@@ -1,5 +1,4 @@
 # Relationize
-transforming arbitrary collections of JSON objects, into a relational-friendly format. Draws inspiration from https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-crawler-pyspark-transforms-Relationalize.html
 Relationize is a Python library for transforming arbitrary collections of JSON objects, into a relational-friendly format. It draws inspiration from https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-crawler-pyspark-transforms-Relationalize.html
 ## Why Relationize
 Relationize is a replacement for AWS Glue Relationalize, and it provides  more portability, saves on cost, and bypasses limitations of Glue Relationalize (Column limit)
@@ -10,7 +9,7 @@ The relationalize class constructor takes in a function that produces a TextIO o
 
 As the relationalize function walks the tree of the JSON document it is first flattening any sub-structs and second converting any arrays.
 
-Relationalize allow schemas to beserialized/deserialize from json. Relationalize only works with flattened arrays, and can be merged.
+Relationalize allow schemas to be serialized/deserialize from json. Relationalize can handle nested JSONs, however the schema class can not handle nested JSON, and needs flatted JSON.
  
 The function `_write_to_output` creates a output in the users choice of output stream which can then be used to write the data to a database. 
 
@@ -27,20 +26,7 @@ pip install relationize
 ## Example
 Example relationize usages are placed in the examples/ folder. 
 To run them cd into the examples folder. 
-## Using Relationalize with Airflow
-Relationize also comes with an already built airflow helper. 
-
-Example implementation within a DAG using the `relationalize_helper`:
-```python
-relationalize_task_group = relationalize_helper(
-        bucket='co.tulip.jira-export',
-        object_name="issues",
-        prefix="issues",
-        concurrency=4,
-        redshift_schema='jira_new,
-    )
-```
-
+ 
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
