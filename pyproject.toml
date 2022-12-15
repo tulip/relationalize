@@ -4,7 +4,7 @@ version = "0.1.2"
 authors = [
   { name="Henry Jones", email="henry.jones@tulip.co" },
 ]
-description = "A utility for converting/transporting arbitrary JSON data into a relational database"
+description = "A utility for converting/transporting arbitrary JSON data collections into a relational database"
 readme = "README.md"
 requires-python = ">=3.6"
 classifiers = [

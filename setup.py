@@ -11,6 +11,7 @@ setup(
     name="relationalize",
     author="Henry Jones",
     author_email="henry.jones@tulip.co",
+    url="https://github.com/tulip/relationalize",
     description="A utility for converting/transporting arbitrary JSON data into a relational database",
     packages=["relationalize"],
     package_dir={"relationalize": "relationalize"},
