@@ -9,6 +9,7 @@ import redshift_connector
 import requests
 import simplejson
 import smart_open
+
 from relationalize import Relationalize, Schema
 
 # This example shows an entire pipeline built utilizing the pokeAPI, s3, and redshift.

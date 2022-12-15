@@ -7,6 +7,7 @@ import boto3
 import redshift_connector
 import simplejson
 import smart_open
+
 from relationalize import Relationalize, Schema
 
 # This example shows how data can be transformed/moved from a given location in s3, and moved into a redshift db.
