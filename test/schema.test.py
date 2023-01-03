@@ -182,6 +182,20 @@ class SchemaTest(unittest.TestCase):
         schema1.drop_null_columns()
         self.assertDictEqual({"1": "int"}, schema1.schema)
 
+    def test_generate_output_columns_no_choice(self):
+        schema1 = Schema()
+        schema1.read_object(CASE_1)
+        self.assertListEqual(["1", "2", "3", "4"], schema1.generate_output_columns())
+
+    def test_generate_output_columns_choice(self):
+        schema1 = Schema()
+        schema1.read_object(CASE_1)
+        schema1.read_object(CASE_2)
+        self.assertListEqual(
+            ["1_int", "1_str", "2_float", "2_str", "3", "4"],
+            schema1.generate_output_columns(),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

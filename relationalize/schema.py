@@ -89,6 +89,24 @@ class Schema:
             output_object[key] = object_value
         return output_object
 
+    def generate_output_columns(self):
+        """
+        Generates the columns that will be in the output of `convert_object`
+        """
+        columns = []
+        for key, value_type in self.schema.items():
+            if Schema._CHOICE_SEQUENCE not in value_type:
+                # Column is not a choice column
+                columns.append(key)
+                continue
+            # Generate a column per choice-type
+            for choice_type in value_type[2:].split(Schema._CHOICE_DELIMITER):
+                if choice_type == "none":
+                    continue
+                columns.append(f"{key}_{choice_type}")
+        columns.sort()
+        return columns
+
     def generate_ddl(self, table: str, schema: str = "public") -> str:
         """
         Generates a CREATE TABLE statement for this schema.
