@@ -6,6 +6,9 @@ on:
     paths:
       - "relationalize/**"
       - ".github/workflows/relationalize-python-lint.yml"
+  push:
+    branches:
+      - conner.gha
 
 jobs:
   run:
