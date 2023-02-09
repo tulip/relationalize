@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from setup_tests import setup_tests
 
-setup_tests()  # Test
+setup_tests()
 
 from relationalize.schema import Schema
 
