@@ -8,7 +8,7 @@ on:
       - ".github/workflows/relationalize-python-lint.yml"
   push:
     branches:
-      - conner.gha # Test Commit
+      - conner.gha
 
 jobs:
   run:
