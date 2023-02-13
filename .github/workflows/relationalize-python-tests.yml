@@ -22,5 +22,4 @@ jobs:
           architecture: "x64"
 
       - name: Python Unit Tests
-        run: bash runPythonTests.sh
-        working-directory: relationalize/scripts
+        run: bash ../../scripts/runPythonTests.sh
