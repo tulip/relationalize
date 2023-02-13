@@ -22,6 +22,7 @@ jobs:
           architecture: "x64"
 
       - name: Python Unit Tests
-        run: ./runPythonTests.sh
+        run: |
+          pip install build
+          bash ./runPythonTests.sh
         working-directory: scripts
-        shell: bash
