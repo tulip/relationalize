@@ -6,9 +6,6 @@ on:
     paths:
       - "relationalize/**"
       - ".github/workflows/relationalize-python-tests.yml"
-  push:
-    branches:
-      - conner.gha
 
 jobs:
   run:
