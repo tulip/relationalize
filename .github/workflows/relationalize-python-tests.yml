@@ -24,3 +24,4 @@ jobs:
       - name: Python Unit Tests
         run: ./scripts/runPythonTests.sh
         working-directory: relationalize
+        shell: bash
