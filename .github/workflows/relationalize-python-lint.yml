@@ -1,0 +1,25 @@
+name: Relationalize Python Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "relationalize/**"
+      - ".github/workflows/relationalize-python-lint.yml"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          architecture: "x64"
+
+      - name: Python Lint
+        run: |
+          pip install black==23.1.0
+          black . --check
+        working-directory: relationalize

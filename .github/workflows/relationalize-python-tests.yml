@@ -1,0 +1,25 @@
+name: Relationalize Python Unit Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "relationalize/**"
+      - ".github/workflows/relationalize-python-tests.yml"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          architecture: "x64"
+
+      - name: Python Unit Tests
+        run: |
+          pip install build
+          bash ./runPythonTests.sh
+        working-directory: scripts
