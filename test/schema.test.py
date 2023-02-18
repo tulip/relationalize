@@ -168,20 +168,6 @@ class SchemaTest(unittest.TestCase):
         self.assertDictEqual({"1_int": 1}, schema1.convert_object(CASE_4))
         self.assertDictEqual({"1_str": "foobar"}, schema1.convert_object(CASE_5))
 
-    def test_drop_null_columns(self):
-        schema1 = Schema()
-        schema1.read_object(CASE_3)
-        self.assertDictEqual({"1": "none"}, schema1.schema)
-
-        schema1.drop_null_columns()
-        self.assertDictEqual({}, schema1.schema)
-
-        schema2 = Schema()
-        schema1.read_object(CASE_3)
-        schema1.read_object(CASE_4)
-        schema1.drop_null_columns()
-        self.assertDictEqual({"1": "int"}, schema1.schema)
-
     def test_generate_output_columns_no_choice(self):
         schema1 = Schema()
         schema1.read_object(CASE_1)

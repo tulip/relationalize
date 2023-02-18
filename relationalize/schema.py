@@ -119,7 +119,7 @@ class Schema:
                 columns.append(
                     self.sql_dialect.generate_ddl_column(
                         key, self.sql_dialect.type_column_mapping[value_type]
-                    )
+                    ).casefold()
                 )
                 continue
             # Generate a column per choice-type
@@ -130,25 +130,12 @@ class Schema:
                     self.sql_dialect.generate_ddl_column(
                         f"{key}_{choice_type}",
                         self.sql_dialect.type_column_mapping[choice_type],
-                    )
+                    ).casefold()
                 )
-        columns.sort()
-        return self.sql_dialect.generate_ddl(schema, table, columns)
-
-    def drop_null_columns(self) -> int:
-        """
-        Drops none-typed columns from the schema.
-
-        Returns the # of columns that were dropped.
-        """
-        columns_to_drop = []
-        for key, value in self.schema.items():
-            if value == "none":
-                columns_to_drop.append(key)
-
-        for column in columns_to_drop:
-            del self.schema[column]
-        return len(columns_to_drop)
+        # Because SQL is case sensitive and JSON is not
+        # Remove duplicate columns after enforcing lowercase
+        deduped_columns = list(set(columns)).sort()
+        return self.sql_dialect.generate_ddl(schema, table, deduped_columns)
 
     def read_object(self, object: Dict):
         """
