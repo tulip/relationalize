@@ -134,7 +134,10 @@ class Schema:
                 )
         # Because SQL is case sensitive and JSON is not
         # Remove duplicate columns after enforcing lowercase
-        deduped_columns = list(set(columns)).sort()
+        if len(columns) > 0:
+            deduped_columns = list(set(columns)).sort()
+        else:
+            deduped_columns = columns
         return self.sql_dialect.generate_ddl(schema, table, deduped_columns)
 
     def read_object(self, object: Dict):
