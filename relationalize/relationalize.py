@@ -49,7 +49,7 @@ class Relationalize:
         """
         Writes a row to the given output.
         """
-        deduped_row = self._deduped_json_row(row)
+        deduped_row = Relationalize._deduped_json_row(row)
         self.outputs[key].write(deduped_row)
         self.outputs[key].write("\n")
         self.on_object_write(key, deduped_row)
@@ -122,7 +122,7 @@ class Relationalize:
         return f"{_ID_PREFIX}{_DELIMITER}{uuid4().hex}"
 
     @staticmethod
-    def _deduped_json_row(self, row: Dict[str, Any]):
+    def _deduped_json_row(row: Dict[str, Any]):
         """
         Because JSON is case insensitive and SQL is not,
         Rremove the second instance of a case insensitive matching column name, if it exists.
