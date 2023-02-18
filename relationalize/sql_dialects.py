@@ -23,7 +23,6 @@ class SQLDialect:
         Generates a complete "Create Table" statement given the
         schema, table_name, and column definitions.
         """
-        print(type(columns))
         columns_str = _COLUMN_SEPERATOR.join(columns)
         return self.base_ddl.format(
             schema=schema, table_name=table_name, columns=columns_str
