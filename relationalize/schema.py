@@ -118,8 +118,8 @@ class Schema:
                 # Column is not a choice column
                 columns.append(
                     self.sql_dialect.generate_ddl_column(
-                        key, self.sql_dialect.type_column_mapping[value_type]
-                    ).casefold()
+                        key.casefold(), self.sql_dialect.type_column_mapping[value_type]
+                    )
                 )
                 continue
             # Generate a column per choice-type
@@ -128,9 +128,9 @@ class Schema:
                     continue
                 columns.append(
                     self.sql_dialect.generate_ddl_column(
-                        f"{key}_{choice_type}",
+                        f"{key.casefold()}_{choice_type}",
                         self.sql_dialect.type_column_mapping[choice_type],
-                    ).casefold()
+                    )
                 )
         # Because SQL is case sensitive and JSON is not
         # Remove duplicate columns after enforcing lowercase
