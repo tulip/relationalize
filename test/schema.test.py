@@ -199,6 +199,7 @@ class SchemaTest(unittest.TestCase):
     def test_drop_special_char_columns(self):
         schema1 = Schema()
         schema1.read_object({"abc ": 1, "def@#": 1, "$$ghi": 1, "jkl": 1, "!@#mno": 1})
+        print(schema1)
         self.assertEqual(3, schema1.drop_special_char_columns())
         self.assertEqual(schema1.schema, {"abc ": 1, "jkl": 1})
 

@@ -175,6 +175,7 @@ class Schema:
         lowercased_keys = set()
         columns_to_drop = []
         for key in self.schema.keys():
+            print(key)
             if key.casefold() not in lowercased_keys:
                 lowercased_keys.add(key.casefold())
             else:
