@@ -199,10 +199,12 @@ class SchemaTest(unittest.TestCase):
     def test_drop_special_char_columns(self):
         schema1 = Schema()
         schema1.read_object({"abc ": 1, "def@#": 1, "$$ghi": 1, "jkl": 1, "!@#mno": 1})
-        schema1.drop_special_char_columns()
-        print(schema1.schema)
-        ##self.assertEqual(3, )
+        self.assertEqual(3, schema1.drop_special_char_columns())
         self.assertEqual(schema1.schema, {"abc ": "int", "jkl": "int"})
+        schema2 = Schema()
+        schema2.read_object({"abc": 1, "def": 2, "GH I ": 3})
+        self.assertEqual(0, schema2.drop_special_char_columns())
+        self.assertEqual(schema2.schema, {"abc": "int", "def": "int", "GH I ": "int"})
 
     def test_drop_duplicate_columns(self):
         schema1 = Schema()
@@ -213,6 +215,22 @@ class SchemaTest(unittest.TestCase):
         self.assertEqual(
             schema1.schema,
             {"ABc ": "int", "DEf ": "int", "ghi": "int", "jkl": "int", "ABC": "int"},
+        )
+        schema2 = Schema()
+        schema2.read_object(
+            {"abc": 1, "ABC": 2, "ABc": 3, "abC ": 4, "D E F": 5, "DEF": 5}
+        )
+        self.assertEqual(0, schema2.drop_special_char_columns())
+        self.assertEqual(
+            schema2.schema,
+            {"abc": "int", "D E F": "int", "DEF": "int"},
+        )
+        schema3 = Schema()
+        schema3.read_object({"abc": 1, "def": 2, "GH I ": 3, "abC ": 4, "D E F": 5})
+        self.assertEqual(0, schema3.drop_special_char_columns())
+        self.assertEqual(
+            schema3.schema,
+            {"abc": "int", "def": "int", "GH I ": "int", "abC ": "int", "D E F": "int"},
         )
 
 

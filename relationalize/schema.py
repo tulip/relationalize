@@ -159,7 +159,7 @@ class Schema:
         """
         columns_to_drop = []
         for key in self.schema.keys():
-            if re.sub(r"[^a-zA-Z0-9 ]", "", key) != key:
+            if any(not c.isalnum() or c == " " for c in key):
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
@@ -175,7 +175,6 @@ class Schema:
         lowercased_keys = set()
         columns_to_drop = []
         for key in self.schema.keys():
-            print(key)
             if key.casefold() not in lowercased_keys:
                 lowercased_keys.add(key.casefold())
             else:
