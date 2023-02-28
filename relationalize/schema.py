@@ -159,7 +159,7 @@ class Schema:
         """
         columns_to_drop = []
         for key in self.schema.keys():
-            if re.sub(r"[^a-zA-Z0-9 ]", "", key) == key:
+            if re.sub(r"[^a-zA-Z0-9 ]", "", key) != key:
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
