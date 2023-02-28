@@ -157,8 +157,8 @@ class Schema:
         Returns the # of columns that were dropped.
         """
         columns_to_drop = []
-        for key, value in self.schema.items():
-            if re.sub(r"[^a-zA-Z0-9 ]", "", value) == value:
+        for key in self.schema.keys():
+            if re.sub(r"[^a-zA-Z0-9 ]", "", key) == key:
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
@@ -180,7 +180,7 @@ class Schema:
 
         columns_to_drop = []
         for key, value in self.schema.items():
-            if value not in deduped_keys:
+            if value not in deduped_keys.keys():
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
