@@ -49,10 +49,9 @@ class Relationalize:
         """
         Writes a row to the given output.
         """
-        deduped_row = Relationalize._deduped_json_row(row)
-        self.outputs[key].write(deduped_row)
+        self.outputs[key].write(json.dumps(row))
         self.outputs[key].write("\n")
-        self.on_object_write(key, deduped_row)
+        self.on_object_write(key, row)
 
     def _write_to_output(
         self, key: str, content: Union[Dict, List[Dict]], is_sub=False
@@ -120,15 +119,3 @@ class Relationalize:
         Generates a relationalize ID. EX:`R_2d0418f3b5de415086f1297cf0a9d9a5`
         """
         return f"{_ID_PREFIX}{_DELIMITER}{uuid4().hex}"
-
-    @staticmethod
-    def _deduped_json_row(row: Dict[str, Any]):
-        """
-        Because JSON is case insensitive and SQL is not,
-        Rremove the second instance of a case insensitive matching column name, if it exists.
-        If duplicates exist, the last will overwrite the first.
-        """
-        deduped_row = {}
-        for key, item in row.items():
-            deduped_row[key.casefold()] = item
-        return json.dumps(deduped_row)

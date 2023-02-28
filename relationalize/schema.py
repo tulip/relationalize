@@ -119,7 +119,7 @@ class Schema:
                 # Column is not a choice column
                 columns.append(
                     self.sql_dialect.generate_ddl_column(
-                        key.casefold(), self.sql_dialect.type_column_mapping[value_type]
+                        key, self.sql_dialect.type_column_mapping[value_type]
                     )
                 )
                 continue
@@ -129,7 +129,7 @@ class Schema:
                     continue
                 columns.append(
                     self.sql_dialect.generate_ddl_column(
-                        f"{key.casefold()}_{choice_type}",
+                        f"{key}_{choice_type}",
                         self.sql_dialect.type_column_mapping[choice_type],
                     )
                 )

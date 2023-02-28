@@ -168,6 +168,20 @@ class SchemaTest(unittest.TestCase):
         self.assertDictEqual({"1_int": 1}, schema1.convert_object(CASE_4))
         self.assertDictEqual({"1_str": "foobar"}, schema1.convert_object(CASE_5))
 
+    def test_drop_null_columns(self):
+        schema1 = Schema()
+        schema1.read_object(CASE_3)
+        self.assertDictEqual({"1": "none"}, schema1.schema)
+
+        schema1.drop_null_columns()
+        self.assertDictEqual({}, schema1.schema)
+
+        schema2 = Schema()
+        schema1.read_object(CASE_3)
+        schema1.read_object(CASE_4)
+        schema1.drop_null_columns()
+        self.assertDictEqual({"1": "int"}, schema1.schema)
+
     def test_generate_output_columns_no_choice(self):
         schema1 = Schema()
         schema1.read_object(CASE_1)
@@ -182,19 +196,19 @@ class SchemaTest(unittest.TestCase):
             schema1.generate_output_columns(),
         )
 
-    def test_drop_duplicate_columns(self):
-        schema1 = Schema()
-        schema1.read_object(CASE_1)
-        schema1.read_object(CASE_1)
-        self.assertEqual(4, schema1.drop_duplicate_columns())
-
     def test_drop_special_char_columns(self):
         schema1 = Schema()
         schema1.read_object({"abc ": 1, "def@#": 1, "$$ghi": 1, "jkl": 1, "!@#mno": 1})
         self.assertEqual(3, schema1.drop_special_char_columns())
         self.assertEqual(schema1.schema, {"abc ": 1, "jkl": 1})
 
-    def test_drop_duplicate_columns(self):
+    def test_drop_duplicate_columns1(self):
+        schema1 = Schema()
+        schema1.read_object(CASE_1)
+        schema1.read_object(CASE_1)
+        self.assertEqual(4, schema1.drop_duplicate_columns())
+
+    def test_drop_duplicate_columns2(self):
         schema1 = Schema()
         schema1.read_object(
             {"ABc ": 1, "DEf ": 1, "ghi": 1, "jkl": 1, "ABC": 1, "abc ": 1, "JkL": 1}
