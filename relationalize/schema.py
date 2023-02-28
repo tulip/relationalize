@@ -1,5 +1,4 @@
 import json
-import re
 from typing import Any, Dict, Optional
 
 from .sql_dialects import PostgresDialect, SQLDialect
@@ -159,7 +158,7 @@ class Schema:
         """
         columns_to_drop = []
         for key in self.schema.keys():
-            if any(not c.isalnum() or c == " " for c in key):
+            if any(not (c.isalnum() or c == " ") for c in key):
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
