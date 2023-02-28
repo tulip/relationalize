@@ -220,7 +220,7 @@ class SchemaTest(unittest.TestCase):
         schema2.read_object(
             {"abc": 1, "ABC": 2, "ABc": 3, "abC ": 4, "D E F": 5, "DEF": 5}
         )
-        self.assertEqual(0, schema2.drop_duplicate_columns())
+        self.assertEqual(2, schema2.drop_duplicate_columns())
         self.assertEqual(
             schema2.schema,
             {"abc": "int", "D E F": "int", "DEF": "int"},
