@@ -150,6 +150,39 @@ class Schema:
             del self.schema[column]
         return len(columns_to_drop)
 
+    def drop_special_char_columns(self) -> int:
+        """
+        Drops columns which have a non alnumeric (excluding whitespace) in their name from the schema.
+
+        Returns the # of columns that were dropped.
+        """
+        columns_to_drop = []
+        for key in self.schema.keys():
+            if any(not (c.isalnum() or c == " ") for c in key):
+                columns_to_drop.append(key)
+
+        for column in columns_to_drop:
+            del self.schema[column]
+        return len(columns_to_drop)
+
+    def drop_duplicate_columns(self) -> int:
+        """
+        Drops columns from the schema which have a duplicate (case sensitive) match. Keeps the first column it reads.
+
+        Returns the # of columns that were dropped.
+        """
+        lowercased_keys = set()
+        columns_to_drop = []
+        for key in self.schema.keys():
+            if key.casefold() not in lowercased_keys:
+                lowercased_keys.add(key.casefold())
+            else:
+                columns_to_drop.append(key)
+
+        for column in columns_to_drop:
+            del self.schema[column]
+        return len(columns_to_drop)
+
     def read_object(self, object: Dict):
         """
         Read an object and merge into the current schema.
