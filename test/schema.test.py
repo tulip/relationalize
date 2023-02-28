@@ -177,9 +177,9 @@ class SchemaTest(unittest.TestCase):
         self.assertDictEqual({}, schema1.schema)
 
         schema2 = Schema()
-        schema1.read_object(CASE_3)
-        schema1.read_object(CASE_4)
-        schema1.drop_null_columns()
+        schema2.read_object(CASE_3)
+        schema2.read_object(CASE_4)
+        schema2.drop_null_columns()
         self.assertDictEqual({"1": "int"}, schema1.schema)
 
     def test_generate_output_columns_no_choice(self):
