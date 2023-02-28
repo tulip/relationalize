@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any, Dict, Optional
 
 from .sql_dialects import PostgresDialect, SQLDialect
@@ -137,6 +138,43 @@ class Schema:
         deduped_columns = list(set(columns))
         deduped_columns.sort()
         return self.sql_dialect.generate_ddl(schema, table, deduped_columns)
+
+    def drop_special_char_columns(self) -> int:
+        """
+        Drops columns which have a non alnumeric (excluding whitespace) in their name from the schema.
+
+        Returns the # of columns that were dropped.
+        """
+        columns_to_drop = []
+        for key, value in self.schema.items():
+            if re.sub(r"[^a-zA-Z0-9 ]", "", value) == value:
+                columns_to_drop.append(key)
+
+        for column in columns_to_drop:
+            del self.schema[column]
+        return len(columns_to_drop)
+
+    def drop_duplicate_columns(self) -> int:
+        """
+        Drops columns from the schema which have a duplicate (case sensitive) match. Keeps the first column it reads.
+
+        Returns the # of columns that were dropped.
+        """
+        lowercased_keys = set()
+        deduped_keys = {}
+        for key, value in self.schema.items():
+            if key.casefold() not in lowercased_keys:
+                lowercased_keys.add(key.casefold())
+                deduped_keys[key] = value
+
+        columns_to_drop = []
+        for key, value in self.schema.items():
+            if value not in deduped_keys:
+                columns_to_drop.append(key)
+
+        for column in columns_to_drop:
+            del self.schema[column]
+        return len(columns_to_drop)
 
     def read_object(self, object: Dict):
         """

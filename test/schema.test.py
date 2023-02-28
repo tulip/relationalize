@@ -182,6 +182,29 @@ class SchemaTest(unittest.TestCase):
             schema1.generate_output_columns(),
         )
 
+    def test_drop_duplicate_columns(self):
+        schema1 = Schema()
+        schema1.read_object(CASE_1)
+        schema1.read_object(CASE_1)
+        self.assertEqual(4, schema1.drop_duplicate_columns())
+
+    def test_drop_special_char_columns(self):
+        schema1 = Schema()
+        schema1.read_object({"abc ": 1, "def@#": 1, "$$ghi": 1, "jkl": 1, "!@#mno": 1})
+        self.assertEqual(3, schema1.drop_special_char_columns())
+        self.assertEqual(schema1.schema, {"abc ": 1, "jkl": 1})
+
+    def test_drop_duplicate_columns(self):
+        schema1 = Schema()
+        schema1.read_object(
+            {"ABc ": 1, "DEf ": 1, "ghi": 1, "jkl": 1, "ABC": 1, "abc ": 1, "JkL": 1}
+        )
+        self.assertEqual(2, schema1.drop_duplicate_columns())
+        self.assertEqual(
+            schema1.schema,
+            {"ABc ": 1, "DEf ": 1, "ghi": 1, "jkl": 1, "ABC": 1},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
