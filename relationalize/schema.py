@@ -133,11 +133,8 @@ class Schema:
                         self.sql_dialect.type_column_mapping[choice_type],
                     )
                 )
-        # Because SQL is case sensitive and JSON is not
-        # Remove duplicate columns after enforcing lowercase
-        deduped_columns = list(set(columns))
-        deduped_columns.sort()
-        return self.sql_dialect.generate_ddl(schema, table, deduped_columns)
+        columns.sort()
+        return self.sql_dialect.generate_ddl(schema, table, columns)
 
     def drop_special_char_columns(self) -> int:
         """
