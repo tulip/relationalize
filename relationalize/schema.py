@@ -139,6 +139,7 @@ class Schema:
     def drop_null_columns(self) -> int:
         """
         Drops none-typed columns from the schema.
+
         Returns the # of columns that were dropped.
         """
         columns_to_drop = []
@@ -172,15 +173,11 @@ class Schema:
         Returns the # of columns that were dropped.
         """
         lowercased_keys = set()
-        deduped_keys = {}
-        for key, value in self.schema.items():
+        columns_to_drop = []
+        for key in self.schema.keys():
             if key.casefold() not in lowercased_keys:
                 lowercased_keys.add(key.casefold())
-                deduped_keys[key] = value
-
-        columns_to_drop = []
-        for key, value in self.schema.items():
-            if value not in deduped_keys.keys():
+            else:
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
