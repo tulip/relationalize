@@ -1,6 +1,6 @@
 [project]
 name = "relationalize"
-version = "0.1.5"
+version = "0.1.6"
 authors = [
   { name="Henry Jones", email="henry.jones@tulip.co" },
 ]
