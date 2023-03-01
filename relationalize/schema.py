@@ -150,15 +150,17 @@ class Schema:
             del self.schema[column]
         return len(columns_to_drop)
 
-    def drop_special_char_columns(self) -> int:
+    def drop_special_char_columns(self, allowed_chars=[" ", "-", "_"]) -> int:
         """
-        Drops columns which have a non alnumeric (excluding whitespace) in their name from the schema.
+        Drops columns which have a non alnumeric in their name from the schema.
+        Optional input allowed_chars allows you to define any additional characters which are allowed.
+        By default this includes spaces, dashes, and underscores.
 
         Returns the # of columns that were dropped.
         """
         columns_to_drop = []
         for key in self.schema.keys():
-            if any(not (c.isalnum() or c in (" ", "-", "_")) for c in key):
+            if any(not (c.isalnum() or c in allowed_chars) for c in key):
                 columns_to_drop.append(key)
 
         for column in columns_to_drop:
