@@ -43,7 +43,7 @@ class PostgresDialect(SQLDialect):
     }
 
     base_ddl: str = """
-CREATE TABLE "{schema}"."{table_name}" (
+CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}" (
     {columns}
 );
     """.strip()
