@@ -16,7 +16,7 @@ CASE_4 = {"1": 1}
 CASE_5 = {"1": "foobar"}
 
 CASE_1_DDL = """
-CREATE TABLE "public"."test" (
+CREATE TABLE IF NOT EXISTS "public"."test" (
     "1" BIGINT
     , "2" VARCHAR(65535)
     , "3" BOOLEAN
@@ -25,7 +25,7 @@ CREATE TABLE "public"."test" (
 """.strip()
 
 CASE_2_DDL = """
-CREATE TABLE "public"."test" (
+CREATE TABLE IF NOT EXISTS "public"."test" (
     "1_int" BIGINT
     , "1_str" VARCHAR(65535)
     , "2_float" FLOAT
