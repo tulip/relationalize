@@ -28,8 +28,8 @@ def create_local_buffer():
     return open_local_buffer
 
 
-def _no_op(schema: str, object: dict):
+def no_op(schema: str, object: dict[str, object]) -> None:
     """
     Does nothing.
     """
-    return
+    pass

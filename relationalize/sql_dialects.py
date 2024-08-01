@@ -1,9 +1,15 @@
-from typing import Dict, List
+from abc import ABC, abstractmethod
+from collections.abc import Mapping
+from typing import Generic, Literal, NewType, TypeVar, override
 
-_COLUMN_SEPERATOR = "\n    , "
+from relationalize.types import SupportedColumnType
 
+_COLUMN_SEPARATOR = "\n    , "
 
-class SQLDialect:
+DDLColumn = NewType('DDLColumn', str)
+DialectColumnType = TypeVar('DialectColumnType')
+
+class SQLDialect(ABC, Generic[DialectColumnType]):
     """
     Parent class for different sql dialects.
 
@@ -11,31 +17,41 @@ class SQLDialect:
     , and provide `type_column_mapping` and `base_ddl`.
     """
 
-    type_column_mapping: Dict[str, str]
+    type_column_mapping: Mapping[SupportedColumnType, DialectColumnType]
     base_ddl: str
 
     @staticmethod
-    def generate_ddl_column(column_name: str, column_type: str):
+    @abstractmethod
+    def generate_ddl_column(column_name: str, column_type: DialectColumnType) -> DDLColumn:
         raise NotImplementedError()
 
-    def generate_ddl(self, schema: str, table_name: str, columns: List[str]):
+    def generate_ddl(self, schema: str, table_name: str, columns: list[str]):
         """
         Generates a complete "Create Table" statement given the
         schema, table_name, and column definitions.
         """
-        columns_str = _COLUMN_SEPERATOR.join(columns)
+        columns_str = _COLUMN_SEPARATOR.join(columns)
         return self.base_ddl.format(
             schema=schema, table_name=table_name, columns=columns_str
         )
 
 
-class PostgresDialect(SQLDialect):
+PostgresColumn = Literal[
+    'BIGINT',
+    'BOOLEAN',
+    'FLOAT',
+    'TIMESTAMP',
+    'VARCHAR(65535)',
+]
+
+class PostgresDialect(SQLDialect[PostgresColumn]):
     """
     Inherits from `SQLDialect` and implements the postgres syntax.
     """
 
-    type_column_mapping: Dict[str, str] = {
+    type_column_mapping: Mapping[SupportedColumnType, PostgresColumn] = {
         "int": "BIGINT",
+        "datetime": "TIMESTAMP",
         "float": "FLOAT",
         "str": "VARCHAR(65535)",
         "bool": "BOOLEAN",
@@ -49,6 +65,7 @@ CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}" (
     """.strip()
 
     @staticmethod
-    def generate_ddl_column(column_name: str, column_type: str):
+    @override
+    def generate_ddl_column(column_name: str, column_type: PostgresColumn):
         cleaned_column_name = column_name.replace('"', '""')
-        return f'"{cleaned_column_name}" {column_type}'
+        return DDLColumn(f'"{cleaned_column_name}" {column_type}')
