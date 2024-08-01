@@ -1,8 +1,10 @@
+from collections.abc import Iterable
 import json
-from typing import Any, Callable, Dict, Iterable, List, TextIO, Union
+from types import TracebackType
+from typing import Any, Callable, TextIO
 from uuid import uuid4
 
-from .utils import _no_op, create_local_file
+from .utils import no_op, create_local_file
 
 _DELIMITER = "_"
 _ID_PREFIX = "R"
@@ -10,6 +12,8 @@ _ID = f"{_DELIMITER}rid{_DELIMITER}"
 _VAL = f"{_DELIMITER}val{_DELIMITER}"
 _INDEX = f"{_DELIMITER}index{_DELIMITER}"
 
+
+DEFAULT_LOCAL_FILE_CALLABLE = create_local_file()
 
 class Relationalize:
     """
@@ -21,22 +25,27 @@ class Relationalize:
 
     def __init__(
         self,
-        name,
-        create_output: Callable[[str], TextIO] = create_local_file(),
-        on_object_write: Callable[[str, Dict[str, Any]], None] = _no_op,
+        name: str,
+        create_output: Callable[[str], TextIO] = DEFAULT_LOCAL_FILE_CALLABLE,
+        on_object_write: Callable[[str, dict[str, Any]], None] = no_op,
     ):
         self.name = name
         self.create_output = create_output
         self.on_object_write = on_object_write
-        self.outputs: Dict[str, TextIO] = {}
+        self.outputs: dict[str, TextIO] = {}
 
     def __enter__(self):
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(
+        self,
+        _type: type[BaseException] | None,
+        _value: BaseException | None,
+        _traceback: TracebackType | None
+    ) -> None:
         self.close_io()
 
-    def relationalize(self, object_list: Iterable[dict]):
+    def relationalize(self, object_list: Iterable[dict[str, object]]):
         """
         Main entrypoint into this class.
 
@@ -45,16 +54,16 @@ class Relationalize:
         for item in object_list:
             self._write_to_output(self.name, self._relationalize(item))
 
-    def _write_row(self, key: str, row: Dict[str, Any]):
+    def _write_row(self, key: str, row: dict[str, Any]):
         """
         Writes a row to the given output.
         """
-        self.outputs[key].write(json.dumps(row))
-        self.outputs[key].write("\n")
+        _ = self.outputs[key].write(json.dumps(row))
+        _ = self.outputs[key].write("\n")
         self.on_object_write(key, row)
 
     def _write_to_output(
-        self, key: str, content: Union[Dict, List[Dict]], is_sub=False
+        self, key: str, content: dict[str, Any] | list[dict[str, Any]], is_sub: bool = False
     ):
         """
         Writes content, either a single object, or a list of objects to the output.
@@ -70,7 +79,7 @@ class Relationalize:
             return
         self._write_row(identifier, content)
 
-    def _list_helper(self, id, index, row, path):
+    def _list_helper(self, id: str, index: int, row: dict[str, object] | Any, path: str):
         """
         Helper for relationalizing lists.
 
@@ -83,7 +92,7 @@ class Relationalize:
 
         return self._relationalize({_VAL: row, _ID: id, _INDEX: index}, path=path)
 
-    def _relationalize(self, d, path=""):
+    def _relationalize(self, d: list[Any] | dict[str, Any] | str, path: str = ""):
         """
         Recursive back bone of the relationalize structure.
 
@@ -102,19 +111,19 @@ class Relationalize:
             return {path: id}
 
         if isinstance(d, dict):
-            temp_d = {}
+            temp_d: dict[str, object] = {}
             for key in d:
                 temp_d.update(self._relationalize(d[key], path=f"{path_prefix}{key}"))
             return temp_d
 
         return {path: d}
 
-    def close_io(self):
+    def close_io(self) -> None:
         for file_object in self.outputs.values():
             file_object.close()
 
     @staticmethod
-    def _generate_rid():
+    def _generate_rid() -> str:
         """
         Generates a relationalize ID. EX:`R_2d0418f3b5de415086f1297cf0a9d9a5`
         """

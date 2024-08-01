@@ -1,10 +1,16 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Final, Generic, TypeVar, cast
+
+from relationalize.types import BaseSupportedColumnType, ChoiceColumnType, ColumnType, UnsupportedColumnType, is_choice_column_type
 
 from .sql_dialects import PostgresDialect, SQLDialect
 
+DialectColumnType = TypeVar('DialectColumnType')
 
-class Schema:
+ALLOWED_COLUMN_CHARS: Final[set[str]] = {" ", "-", "_"}
+DEFAULT_SQL_DIALECT = PostgresDialect()
+
+class Schema(Generic[DialectColumnType]):
     """
     A choice-supporting schema for a flattened JSON object.
     """
@@ -14,37 +20,37 @@ class Schema:
 
     def __init__(
         self,
-        schema: Optional[dict] = None,
-        sql_dialect: SQLDialect = PostgresDialect(),
+        schema: dict[str, ColumnType] | None = None,
+        sql_dialect: SQLDialect[DialectColumnType] = DEFAULT_SQL_DIALECT,
     ):
         if schema is None:
-            schema = {}
-        self.schema: Dict[str, str] = schema
+            schema = dict()
+        self.schema = schema
         self.sql_dialect = sql_dialect
 
-    def convert_object(self, object: Dict[str, Any]) -> Dict[str, Any]:
+    def convert_object(self, record: dict[str, Any]) -> dict[str, Any]:
         """
         Convert a given object according to the schema.
         Splits choice-columns into N seperate columns and renames keys accordingly.
 
         Chooses between schema-iteration and object-iteration depending on which one will be more efficient.
         """
-        if len(self.schema) > len(object):
-            return self._convert_object_object_iteration(object)
-        return self._convert_object_schema_iteration(object)
+        if len(self.schema) > len(record):
+            return self._convert_object_object_iteration(record)
+        return self._convert_object_schema_iteration(record)
 
     def _convert_object_schema_iteration(
-        self, object: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        output_object = {}
+        self, record: dict[str, object]
+    ) -> dict[str, object]:
+        output_object: dict[str, object] = {}
         for key, value_type in self.schema.items():
-            if key not in object:
+            if key not in record:
                 continue
-            object_value = object[key]
+            object_value = record[key]
             if object_value is None:
                 output_object[key] = object_value
                 continue
-            if Schema._CHOICE_SEQUENCE in value_type:
+            if is_choice_column_type(value_type):
                 # determine which type this object is and enter into correct sub-column
                 object_value_type = self._parse_type(object_value)
                 if object_value_type not in value_type:
@@ -62,17 +68,17 @@ class Schema:
         return output_object
 
     def _convert_object_object_iteration(
-        self, object: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        output_object = {}
-        for key, object_value in object.items():
+        self, record: dict[str, object]
+    ) -> dict[str, object]:
+        output_object: dict[str, object] = {}
+        for key, object_value in record.items():
             if object_value is None:
                 output_object[key] = object_value
                 continue
             if key not in self.schema:
                 continue
             value_type = self.schema[key]
-            if Schema._CHOICE_SEQUENCE in value_type:
+            if is_choice_column_type(value_type):
                 # determine which type this object is and enter into correct sub-column
                 object_value_type = self._parse_type(object_value)
                 if object_value_type not in value_type:
@@ -89,11 +95,11 @@ class Schema:
             output_object[key] = object_value
         return output_object
 
-    def generate_output_columns(self):
+    def generate_output_columns(self) -> list[str]:
         """
         Generates the columns that will be in the output of `convert_object`
         """
-        columns = []
+        columns: list[str] = []
         for key, value_type in self.schema.items():
             if Schema._CHOICE_SEQUENCE not in value_type:
                 # Column is not a choice column
@@ -112,7 +118,7 @@ class Schema:
         Generates a CREATE TABLE statement for this schema.
         Breaking out choice columns into seperate columns.
         """
-        columns = []
+        columns: list[str] = []
         for key, value_type in self.schema.items():
             if Schema._CHOICE_SEQUENCE not in value_type:
                 # Column is not a choice column
@@ -123,7 +129,7 @@ class Schema:
                 )
                 continue
             # Generate a column per choice-type
-            for choice_type in value_type[2:].split(Schema._CHOICE_DELIMITER):
+            for choice_type in cast(list[BaseSupportedColumnType], value_type[2:].split(Schema._CHOICE_DELIMITER)):
                 if choice_type == "none":
                     continue
                 columns.append(
@@ -141,7 +147,7 @@ class Schema:
 
         Returns the # of columns that were dropped.
         """
-        columns_to_drop = []
+        columns_to_drop: list[str] = []
         for key, value in self.schema.items():
             if value == "none":
                 columns_to_drop.append(key)
@@ -150,7 +156,7 @@ class Schema:
             del self.schema[column]
         return len(columns_to_drop)
 
-    def drop_special_char_columns(self, allowed_chars: set = {" ", "-", "_"}) -> int:
+    def drop_special_char_columns(self, allowed_chars: set[str] = ALLOWED_COLUMN_CHARS) -> int:
         """
         Drops columns which have a non alnumeric in their name from the schema.
         Optional input a set of allowed_chars to define any additional characters which are allowed.
@@ -158,7 +164,7 @@ class Schema:
 
         Returns the # of columns that were dropped.
         """
-        columns_to_drop = []
+        columns_to_drop: list[str] = []
         for key in self.schema.keys():
             if any(not (c.isalnum() or c in allowed_chars) for c in key):
                 columns_to_drop.append(key)
@@ -173,8 +179,8 @@ class Schema:
 
         Returns the # of columns that were dropped.
         """
-        lowercased_keys = set()
-        columns_to_drop = []
+        lowercased_keys: set[str] = set()
+        columns_to_drop: list[str] = []
         for key in self.schema.keys():
             if key.casefold() not in lowercased_keys:
                 lowercased_keys.add(key.casefold())
@@ -185,11 +191,11 @@ class Schema:
             del self.schema[column]
         return len(columns_to_drop)
 
-    def read_object(self, object: Dict):
+    def read_object(self, record: dict[str, object]):
         """
         Read an object and merge into the current schema.
         """
-        for key, value in object.items():
+        for key, value in record.items():
             self._read_write_object_key(key, value)
 
     def serialize(self) -> str:
@@ -205,7 +211,7 @@ class Schema:
         """
         return Schema(schema=json.loads(content))
 
-    def _read_write_object_key(self, key, value):
+    def _read_write_object_key(self, key: str, value: object):
         value_type = Schema._parse_type(value)
         if key not in self.schema:
             # Key has not been encountered yet. Set type in schema to type of value.
@@ -229,7 +235,7 @@ class Schema:
                 return
 
             # Add this type into the choice pattern.
-            self.schema[key] += f"{Schema._CHOICE_DELIMITER}{value_type}"
+            self.schema[key] = ChoiceColumnType(f"{self.schema[key]}{Schema._CHOICE_DELIMITER}{value_type}")
 
             choices = self.schema[key].split(Schema._CHOICE_DELIMITER)[1:]
             # Remove `none` type from choices
@@ -237,25 +243,25 @@ class Schema:
                 choices.remove("none")
             # Check if choices is only of lenth 1 and remove choice pattern.
             if len(choices) == 1:
-                self.schema[key] = choices[0]
+                self.schema[key] = cast(BaseSupportedColumnType, choices[0])
                 return
             # Reorder the types so things are predictable.
             self.schema[
                 key
-            ] = f"{Schema._CHOICE_SEQUENCE}{Schema._CHOICE_DELIMITER.join(sorted(choices))}"
+            ] = ChoiceColumnType(f"{Schema._CHOICE_SEQUENCE}{Schema._CHOICE_DELIMITER.join(sorted(choices))}")
             return
 
         # Create new 2-type choice pattern.
         self.schema[
             key
-        ] = f"{Schema._CHOICE_SEQUENCE}{Schema._CHOICE_DELIMITER.join(sorted([self.schema[key], value_type]))}"
+        ] = ChoiceColumnType(f"{Schema._CHOICE_SEQUENCE}{Schema._CHOICE_DELIMITER.join(sorted([self.schema[key], value_type]))}")
 
     @staticmethod
-    def merge(*args: Dict[str, str]):
+    def merge(*args: dict[str, ColumnType]):
         """
         Create a new Schema object from multiple serialized schemas merging them together.
         """
-        merged_schema: Dict[str, str] = {}
+        merged_schema: dict[str, ColumnType] = {}
         for schema in args:
             for key, value_type in schema.items():
                 if key not in merged_schema:
@@ -287,16 +293,16 @@ class Schema:
                     merged_schema[key] = "none"
                     continue
                 if len(choices) == 1:
-                    merged_schema[key] = choices.pop()
+                    merged_schema[key] = cast(BaseSupportedColumnType, choices.pop())
                     continue
 
                 merged_schema[
                     key
-                ] = f"{Schema._CHOICE_SEQUENCE}{Schema._CHOICE_DELIMITER.join(sorted(choices))}"
+                ] = ChoiceColumnType(f"{Schema._CHOICE_SEQUENCE}{Schema._CHOICE_DELIMITER.join(sorted(choices))}")
         return Schema(schema=merged_schema)
 
     @staticmethod
-    def _parse_type(value):
+    def _parse_type(value: object) -> ColumnType:
         """
         Get the type of a given value
         """
@@ -310,4 +316,4 @@ class Schema:
             return "str"
         if value is None:
             return "none"
-        return f"unsupported:{type(value)}"
+        return UnsupportedColumnType(f"unsupported:{type(value)}")
