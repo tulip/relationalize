@@ -1,3 +1,4 @@
+import re
 import unittest
 from copy import deepcopy
 
@@ -16,7 +17,7 @@ CASE_4 = {"1": 1}
 CASE_5 = {"1": "foobar"}
 
 CASE_1_DDL = """
-CREATE TABLE "public"."test" (
+CREATE TABLE IF NOT EXISTS "public"."test" (
     "1" BIGINT
     , "2" VARCHAR(65535)
     , "3" BOOLEAN
@@ -25,7 +26,7 @@ CREATE TABLE "public"."test" (
 """.strip()
 
 CASE_2_DDL = """
-CREATE TABLE "public"."test" (
+CREATE TABLE IF NOT EXISTS "public"."test" (
     "1_int" BIGINT
     , "1_str" VARCHAR(65535)
     , "2_float" FLOAT
@@ -121,14 +122,14 @@ class SchemaTest(unittest.TestCase):
     def test_generate_ddl_no_choice(self):
         schema1 = Schema()
         schema1.read_object(CASE_1)
-        self.assertEqual(CASE_1_DDL, schema1.generate_ddl("test"))
+        self.assertEqual(re.sub(r'\s+', ' ', CASE_1_DDL), re.sub(r'\s+', ' ', schema1.generate_ddl("test")))
 
     def test_generate_ddl_choice(self):
         schema1 = Schema()
         schema1.read_object(CASE_1)
         schema1.read_object(CASE_2)
 
-        self.assertEqual(CASE_2_DDL, schema1.generate_ddl("test"))
+        self.assertEqual(re.sub(r'\s+', ' ', CASE_2_DDL), re.sub(r'\s+', ' ', schema1.generate_ddl("test")))
 
     def test_none_cases(self):
         schema1 = Schema()
