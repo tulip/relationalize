@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from typing import Generic, Literal, NewType, TypeVar, override
+from typing import Generic, Literal, NewType, TypeVar
 
 from relationalize.types import SupportedColumnType
 
@@ -65,7 +65,6 @@ CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}" (
     """.strip()
 
     @staticmethod
-    @override
     def generate_ddl_column(column_name: str, column_type: PostgresColumn):
         cleaned_column_name = column_name.replace('"', '""')
         return DDLColumn(f'"{cleaned_column_name}" {column_type}')
