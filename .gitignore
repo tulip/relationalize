@@ -2,3 +2,10 @@ __pycache__
 .venv
 dist
 relationalize.egg-info
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/.gitignore
+/.idea/aws.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/relationalize.iml
+/.idea/vcs.xml
